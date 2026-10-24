@@ -1,0 +1,178 @@
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">CONSTRUYE TU SEMESTRE</p>
+    <h1>Inscribir materias<span class="accent-dot">.</span></h1>
+    <p class="muted">
+      Elige tres perspectivas nuevas para tu próximo capítulo.
+    </p>
+  </div>
+  <a z-button zType="outline" routerLink="/panel/mis-materias"
+    >Ver mi matrícula <ng-icon name="lucideArrowUpRight"
+  /></a>
+</div>
+@if (session.message()) {
+<z-alert
+  zRole="status"
+  [zDescription]="session.message()"
+  class="success-alert"
+/>
+} @if (error()) {
+<z-alert zType="destructive" [zDescription]="error()" /><button
+  z-button
+  zType="outline"
+  (click)="load()"
+  [zDisabled]="loading() || busy() || dirty()"
+>
+  Reintentar carga
+</button>
+}
+<div class="rules-strip">
+  <span><ng-icon name="lucideBookOpen" /> 3 materias a tu elección</span
+  ><span><ng-icon name="lucideGraduationCap" /> 3 créditos por materia</span
+  ><span><ng-icon name="lucideUsers" /> Un profesor diferente por materia</span>
+</div>
+@if (loading()) {
+<div class="loading-state" role="status">Cargando el catálogo de materias…</div>
+} @else {
+<div class="enrollment-layout">
+  <section>
+    <div class="catalog-toolbar">
+      <h2>Explora el catálogo <span>{{ courses().length }}</span></h2>
+      <div class="search-input">
+        <ng-icon name="lucideSearch" /><input
+          z-input
+          type="search"
+          aria-label="Buscar materia o profesor"
+          placeholder="Buscar materia o profesor…"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+        />
+      </div>
+    </div>
+    <div class="course-grid">
+      @for (course of filtered(); track course.id) {
+      <article
+        class="course-card"
+        [class.is-selected]="selected().includes(course.id)"
+        [class.is-blocked]="!!reason(course)"
+      >
+        <div class="course-top">
+          <span class="subject-icon"><ng-icon name="lucideBookOpen" /></span
+          ><z-badge zType="outline">{{ course.credits }} créditos</z-badge>
+        </div>
+        <p class="course-code">
+          MATERIA {{ course.id < 10 ? '0' + course.id : course.id }}
+        </p>
+        <h3>{{ course.name }}</h3>
+        <p class="professor">
+          <ng-icon name="lucideUserRound" /> {{ course.professorName }}
+        </p>
+        <div class="course-action">
+          <button
+            z-button
+            [zType]="selected().includes(course.id) ? 'default' : 'outline'"
+            [zDisabled]="busy() || !!reason(course)"
+            [attr.aria-pressed]="selected().includes(course.id)"
+            [attr.aria-label]="(selected().includes(course.id) ? 'Quitar ' : 'Seleccionar ') + course.name"
+            (click)="toggle(course)"
+          >
+            <ng-icon
+              [name]="selected().includes(course.id) ? 'lucideCheck' : 'lucidePlus'"
+            />
+            {{ selected().includes(course.id) ? 'Seleccionada' : 'Seleccionar materia' }}
+          </button>
+          <p class="selection-reason">
+            {{ reason(course) || (selected().includes(course.id) ? 'Puedes quitarla para cambiar tu selección.' : 'Disponible para tu matrícula.') }}
+          </p>
+        </div>
+      </article>
+      } @empty {
+      <div class="empty-state">
+        <ng-icon name="lucideSearch" />
+        <h3>No encontramos esa materia</h3>
+        <p>Prueba con otro nombre o profesor.</p>
+        <button z-button zType="outline" (click)="search.set('')">
+          Limpiar búsqueda
+        </button>
+      </div>
+      }
+    </div>
+  </section>
+  <aside class="enrollment-summary">
+    <section z-card class="content-card">
+      <div class="section-heading">
+        <h2>Tu selección</h2>
+        <z-badge zType="secondary">{{ selected().length }} / 3</z-badge>
+      </div>
+      <p class="muted">Así se está formando tu semestre.</p>
+      <div class="credit-total">
+        <strong>{{ selected().length * 3 }}</strong
+        ><span>de 9 créditos<br />seleccionados</span>
+      </div>
+      <z-progress
+        [value]="selected().length / 3 * 100"
+        aria-label="Progreso de selección"
+      />
+      <ul class="summary-list">
+        @for (course of selectedCourses(); track course.id) {
+        <li>
+          <span
+            ><strong>{{ course.name }}</strong
+            ><small>{{ course.professorName }}</small></span
+          ><button
+            z-button
+            zType="ghost"
+            zSize="icon"
+            [zDisabled]="busy()"
+            [attr.aria-label]="'Quitar ' + course.name + ' del resumen'"
+            (click)="remove(course.id)"
+          >
+            <ng-icon name="lucideX" />
+          </button>
+        </li>
+        }@if (!selected().length) {
+        <li class="summary-empty">
+          Tus materias aparecerán aquí.<br />Explora y elige las que más te
+          interesen.
+        </li>
+        }
+      </ul>
+      <div class="summary-status" aria-live="polite">
+        <ng-icon [name]="valid() ? 'lucideCircleCheck' : 'lucideClock3'" />{{
+        valid() ? 'Tres profesores diferentes. Todo en orden.' : 'Selecciona ' +
+        (3 - selected().length) + ' materia(s) más.' }}
+      </div>
+      <button
+        z-button
+        class="full-width"
+        [zDisabled]="!valid() || !dirty() || busy()"
+        [zLoading]="busy()"
+        (click)="save()"
+      >
+        {{ saved().length ? 'Guardar cambios' : 'Confirmar inscripción'
+        }}<ng-icon name="lucideArrowRight" /></button
+      >@if (dirty()) {
+      <button
+        z-button
+        zType="ghost"
+        class="full-width"
+        [zDisabled]="busy()"
+        (click)="reset()"
+      >
+        Descartar selección
+      </button>
+      }
+      <p class="summary-footnote">
+        Tu matrícula cambia únicamente al confirmar.
+      </p>
+    </section>
+    <div class="tip-card">
+      <ng-icon name="lucideShieldCheck" />
+      <p>
+        <strong>Una elección equilibrada.</strong><br />Cada materia debe tener
+        un profesor diferente. Te ayudamos a evitar cruces.
+      </p>
+    </div>
+  </aside>
+</div>
+}

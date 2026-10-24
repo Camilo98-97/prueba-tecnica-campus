@@ -1,0 +1,64 @@
+<a class="skip-link" href="#main-content">Saltar al contenido</a>
+<div class="portal">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/panel/inicio"
+      ><span class="brand-symbol"><ng-icon name="lucideGraduationCap" /></span
+      >campus<span class="brand-dot">.</span></a
+    >
+    <p class="nav-caption">MI ESPACIO ACADÉMICO</p>
+    <nav aria-label="Navegación principal">
+      @for (link of links; track link.path) {
+      <a
+        [routerLink]="'/panel/' + link.path"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        ><ng-icon [name]="link.icon" /><span>{{ link.label }}</span>@if
+        (link.path === 'mis-materias') {
+        <span class="nav-count"
+          >{{ session.profile()?.courses?.length || 0 }}</span
+        >
+        }</a
+      >
+      }
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-note">
+        <ng-icon name="lucideGraduationCap" /><strong
+          >Tu próximo paso<br />empieza aquí.</strong
+        >
+        <p>Cada materia abre una posibilidad.</p>
+      </div>
+      <button
+        z-button
+        zType="ghost"
+        class="logout-button"
+        [zDisabled]="busy()"
+        [zLoading]="busy()"
+        (click)="logout()"
+      >
+        <ng-icon name="lucideLogOut" /> Cerrar sesión
+      </button>
+    </div>
+  </aside>
+  <div class="portal-body">
+    <header class="portal-header">
+      <span
+        >Portal de estudiantes <span class="header-slash">/</span>
+        <strong>Mi campus</strong></span
+      ><a routerLink="/panel/perfil" class="user-chip"
+        ><span class="avatar">{{ session.profile()?.name?.charAt(0) }}</span
+        ><span>{{ session.profile()?.name }}<small>Estudiante</small></span></a
+      >
+    </header>
+    <main id="main-content" class="page-container" tabindex="-1">
+      @if (error()) {
+      <z-alert zType="destructive" [zDescription]="error()" />
+      }<router-outlet />
+    </main>
+    <footer class="portal-footer">
+      <span>campus.</span>
+      <p>Un espacio para aprender, conectar y crecer.</p>
+      <span>Programa de créditos</span>
+    </footer>
+  </div>
+</div>

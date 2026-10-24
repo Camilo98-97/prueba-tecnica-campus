@@ -1,0 +1,178 @@
+<div class="auth-layout">
+  <aside class="auth-story">
+    <a routerLink="/login" class="brand"
+      ><span class="brand-symbol"><ng-icon name="lucideGraduationCap" /></span
+      >campus<span class="brand-dot">.</span></a
+    >
+    <div class="story-content">
+      <p class="eyebrow">UN NUEVO CAPÍTULO</p>
+      <h1>
+        Tu futuro empieza<br />con lo que<br /><span>eliges aprender.</span>
+      </h1>
+      <p>
+        Un espacio para construir tu semestre,<br />descubrir nuevas ideas y
+        aprender en compañía.
+      </p>
+      <div class="journey">
+        <div>
+          <span>01</span>
+          <p>Crea tu cuenta<small>Tu lugar en nuestra comunidad.</small></p>
+        </div>
+        <div>
+          <span>02</span>
+          <p>Elige tus materias<small>Tres materias. Nueve créditos.</small></p>
+        </div>
+        <div>
+          <span>03</span>
+          <p>Conoce a tu grupo<small>Comparte el camino de aprender.</small></p>
+        </div>
+      </div>
+    </div>
+    <div class="story-footer">
+      <span>APRENDER ES AVANZAR</span><ng-icon name="lucideArrowUpRight" />
+    </div>
+  </aside>
+  <main class="auth-main">
+    <div class="auth-top">
+      <span>Portal de estudiantes</span
+      ><a [routerLink]="register ? '/login' : '/registro'"
+        >{{ register ? 'Ya tengo cuenta' : 'Crear una cuenta' }}
+        <ng-icon name="lucideArrowUpRight"
+      /></a>
+    </div>
+    <section class="auth-form-wrap">
+      <span class="icon-tile"
+        ><ng-icon [name]="register ? 'lucideGraduationCap' : 'lucideBookOpen'"
+      /></span>
+      <p class="eyebrow">
+        {{ register ? 'HAZ PARTE DE CAMPUS' : 'QUÉ BUENO VERTE DE NUEVO' }}
+      </p>
+      <h2>
+        {{ register ? 'Comienza tu historia.' : 'Bienvenido a tu campus.' }}
+      </h2>
+      <p class="muted">
+        {{ register ? 'Primero tu cuenta. Después, tu próximo semestre.' :
+        'Ingresa para continuar tu camino de aprendizaje.' }}
+      </p>
+      @if (session.message()) {
+      <z-alert zRole="status" [zDescription]="session.message()" /> } @if
+      (error()) { <z-alert zType="destructive" [zDescription]="error()" /> }
+      <form #form="ngForm" (ngSubmit)="submit()" class="stack-form">
+        @if (register) { <label for="name">Nombre completo</label
+        ><input
+          z-input
+          id="name"
+          name="name"
+          [(ngModel)]="name"
+          #nameField="ngModel"
+          required
+          minlength="2"
+          maxlength="100"
+          autocomplete="name"
+          placeholder="Tu nombre y apellido"
+          [disabled]="busy()"
+          [attr.aria-invalid]="nameField.invalid && nameField.touched"
+          aria-describedby="name-help"
+        />@if (nameField.invalid && nameField.touched) {
+        <small id="name-help" class="field-error"
+          >Escribe al menos dos caracteres.</small
+        >
+        } } <label for="email">Correo electrónico</label
+        ><input
+          z-input
+          id="email"
+          name="email"
+          type="email"
+          [(ngModel)]="email"
+          #emailField="ngModel"
+          required
+          email
+          maxlength="254"
+          autocomplete="email"
+          placeholder="tu@correo.com"
+          [disabled]="busy()"
+          [attr.aria-invalid]="emailField.invalid && emailField.touched"
+          aria-describedby="email-help"
+        />
+        @if (emailField.invalid && emailField.touched) {
+        <small id="email-help" class="field-error"
+          >Ingresa un correo electrónico válido.</small
+        >
+        }
+        <label for="password">Contraseña</label>
+        <div class="password-input">
+          <input
+            z-input
+            id="password"
+            name="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            [(ngModel)]="password"
+            #passwordField="ngModel"
+            required
+            [minlength]="register ? 8 : 1"
+            maxlength="128"
+            [autocomplete]="register ? 'new-password' : 'current-password'"
+            [placeholder]="register ? 'Mínimo 8 caracteres' : 'Tu contraseña'"
+            [disabled]="busy()"
+            [attr.aria-invalid]="passwordField.invalid && passwordField.touched"
+            aria-describedby="password-help"
+          /><button
+            type="button"
+            (click)="showPassword.set(!showPassword())"
+            [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            [attr.aria-pressed]="showPassword()"
+          >
+            <ng-icon [name]="showPassword() ? 'lucideEyeOff' : 'lucideEye'" />
+          </button>
+        </div>
+        @if (passwordField.invalid && passwordField.touched) {
+        <small id="password-help" class="field-error"
+          >{{ register ? 'La contraseña debe tener al menos 8 caracteres.' :
+          'Ingresa tu contraseña.' }}</small
+        >
+        } @if (register) {
+        <label for="confirmation">Confirma tu contraseña</label
+        ><input
+          z-input
+          id="confirmation"
+          name="confirmation"
+          type="password"
+          [(ngModel)]="confirmation"
+          #confirmField="ngModel"
+          required
+          autocomplete="new-password"
+          placeholder="Escríbela nuevamente"
+          [disabled]="busy()"
+          [attr.aria-invalid]="confirmField.touched && confirmation !== password"
+          aria-describedby="confirm-help"
+        />@if (confirmField.touched && confirmation !== password) {
+        <small class="field-error" id="confirm-help"
+          >Las contraseñas no coinciden.</small
+        >
+        } }
+        <button
+          z-button
+          type="submit"
+          class="auth-submit"
+          [zLoading]="busy()"
+          [zDisabled]="busy() || !!form.invalid || (register && (password !== confirmation || name.trim().length < 2))"
+        >
+          {{ register ? 'Crear mi cuenta' : 'Iniciar sesión' }}
+          <ng-icon name="lucideArrowRight" />
+        </button>
+      </form>
+      <p class="auth-alternate">
+        {{ register ? '¿Ya tienes una cuenta?' : '¿Es tu primera vez aquí?' }}
+        <a [routerLink]="register ? '/login' : '/registro'"
+          >{{ register ? 'Inicia sesión' : 'Regístrate' }}</a
+        >
+      </p>
+      <p class="privacy-note">
+        <ng-icon name="lucideShieldCheck" /> Tus datos de acceso son privados.
+      </p>
+    </section>
+    <footer class="auth-footer">
+      Campus · Un espacio para aprender y conectar.
+    </footer>
+  </main>
+</div>

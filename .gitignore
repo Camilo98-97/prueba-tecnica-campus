@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.angular/
+bin/
+obj/
+.dotnet/
+.nuget/
+.cli-home/
+.env
+TestResults/
+tools/dotnet-install.ps1
+*.user
+output/
