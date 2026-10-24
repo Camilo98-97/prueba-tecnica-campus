@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://campus-api-9rfa.onrender.com"
+      "destination": "https://campus-api-9rfa.onrender.com/api/:path*"
     },
     {
       "source": "/(.*)",
